@@ -14,8 +14,11 @@ class ApiController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|confirmed',
+            'phone' => 'nullable|string|max:15', // Add validation for phone
+            'birth_date' => 'nullable|date',     // Add validation for birth date
+            'address' => 'nullable|string|max:500', // Add validation for address
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -23,13 +26,16 @@ class ApiController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
+    
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'phone' => $request->phone,         // Save phone
+            'birth_date' => $request->birth_date, // Save birth date
+            'address' => $request->address,     // Save address
         ]);
-
+    
         return response()->json([
             "status" => true,
             'message' => 'User registered successfully',
