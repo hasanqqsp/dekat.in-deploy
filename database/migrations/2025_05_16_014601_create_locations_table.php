@@ -26,6 +26,7 @@ return new class extends Migration
             $table->time('close_hour')->nullable();
             $table->integer('start_price')->nullable();
             $table->integer('end_price')->nullable();
+            $table->foreignId('contributor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

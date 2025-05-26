@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class GoogleController extends Controller
 {
@@ -21,7 +22,7 @@ class GoogleController extends Controller
             ['email' => $googleUser->getEmail()],
             [
                 'name' => $googleUser->getName(),
-                'password' => bcrypt(str_random(16)), // Random password
+                'password' => bcrypt(Str::random(16)), // Random password
             ]
         );
 

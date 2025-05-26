@@ -24,4 +24,14 @@ class Location extends Model
     protected $casts = [
         'coords' => 'array',
     ];
+
+    public function contributor()
+    {
+        return $this->belongsTo(User::class, 'contributor_id');
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
 }

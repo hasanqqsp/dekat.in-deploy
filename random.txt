@@ -1,0 +1,138 @@
+crew
+- id : uuid
+- firstName : string
+- lastName : string
+- email : string
+- role : string
+- skills : string
+- isAvailable : bool
+- createdAt : datetime
+- updatedAt : datetime
+
+client
+- id : uuid
+- name : string
+- avatar : string
+
+reviews
+- id : uuid
+- clientName : string
+- company : string
+- serviceName : string
+- fileUpload : string
+- details : string
+
+- id : uuid
+- title : string
+- description : string
+- isPublished : bool
+- image : string
+
+portofolios
+- id : uuid
+- serviceId : uuid
+- name : string
+- image : string
+
+user
+- id : uuid
+- name : string
+- email : string
+- role : string
+- createdAt : string
+- updatedAt : string
+- picture : string
+- googleId : string
+- hashedRefreshToken : string
+- phone : string
+- department : string
+- position : string
+
+
+-id : uuid
+-name : string
+-email : string
+-role : string
+-createdAt : string
+-updatedAt : string
+-picture : string
+-googleId : string
+-hashedRefreshToken : string
+-phone : string
+-department : string
+-position : string
+
+o_auth_token
+- id : uuid
+- userid : uuid 
+- provider : string
+- accessToken : string
+- refreshToken : string
+- scope : string
+- tokenExpiresAt : datetime
+- createdAt : datetime
+- updatedAt : datetime
+
+todos
+- id : uuid
+- userId : uuid
+- projectId : uuid
+- pinned : bool
+- title : string
+- task : json
+- createdAt : datetime
+- updatedAt : datetime
+
+project_crew
++id : uuid
++projectId : uuid
+
+
+project
+- id : uuid
+- createdById : uuid
+- serviceId : uuid
+- name : string
+- clientName : string
+- description : string
+- status : string
+- startDate : datetime
+- dueDate : datetime
+- createdAt : datetime
+- updatedAt : datetime
+- driveFolderId : string
+- driveWebView : string
+
+notes
+- id : uuid
+- userId : uuid
+- projectId : uuid 
+- pinned : bool
+- title : string
+- content : string
+- createdAt : datetime
+- updatedAt : datetime
+
+folders
+- id : uuid
+- projectId : uuid
+- createdById : uuid
+- name : string
+- driveFolderId : string
+- driveWebViewLink : string
+- createdAt : datetime
+- updatedAt : datetime
+- pinned : bool
+
+document
+- id : uuid
+- projectId : uuid
+- folderId : uuid
+- name : string
+- fileType : string
+- googleDriveField : string
+- googleDriveWebViewLink : string
+- originalFilename : string
+- createdAt : string
+- updatedAt : string
+- pinned : bool

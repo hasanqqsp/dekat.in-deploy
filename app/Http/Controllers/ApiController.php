@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
@@ -48,7 +49,7 @@ class ApiController extends Controller
             'email' => 'required|string|email',
             'password' => 'required',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -56,28 +57,33 @@ class ApiController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
+    
         $user = User::where('email', $request->email)->first();
-
-        if (!$user || !password_verify($request->password, $user->password)) {
+    
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid credentials',
             ], 401);
         }
-
+    
         $token = $user->createToken('Personal Access Token')->plainTextToken;
-
+    
         return response()->json([
             "status" => true,
             'message' => 'User logged in successfully',
             'token' => $token,
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
         ]);
     }
+
     public function logout(Request $request)
     {
-        request()->user()->tokens()->delete();
-
+        $request->user()->currentAccessToken()->delete();
+    
         return response()->json([
             "status" => true,
             'message' => 'User logged out successfully',
@@ -89,10 +95,83 @@ class ApiController extends Controller
         $userData = auth()->user();
 
         return response()->json([
-            "status" => true,
-            'message' => 'Profile information',
-            'data' => $userData,
+            'profileImage' => $userData->profile_image,
+            'name' => $userData->name,
+            'phone' => $userData->phone,
+            'email' => $userData->email,
+            'birthDate' => $userData->birth_date,
         ]);
 
+    }
+
+
+    ## change password
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = auth()->user();
+
+        if (!password_verify($request->current_password, $user->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Current password is incorrect',
+            ], 401);
+        }
+
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        return response()->json([
+            "status" => true,
+            'message' => 'Password changed successfully',
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:15', // Add validation for phone
+            'birth_date' => 'nullable|date',     // Add validation for birth date
+            'email' => 'required|string|email|max:255',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for profile image
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = auth()->user();
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->birth_date = $request->birth_date;
+        $user->email = $request->email;
+        if ($request->hasFile('profile_image')) {
+            $imageName = time() . '.' . $request->profile_image->extension();
+            $request->profile_image->move(public_path('images'), $imageName);
+            $user->profile_image = 'images/' . $imageName;
+        }
+        $user->save();
+
+        return response()->json([
+            "status" => true,
+            'message' => 'Profile updated successfully',
+        ]);
     }
 }
