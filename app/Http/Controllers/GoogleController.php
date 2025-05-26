@@ -26,8 +26,12 @@ class GoogleController extends Controller
             ]
         );
 
-        Auth::login($user);
+        $token = $user->createToken('Personal Access Token')->plainTextToken;
 
-        return redirect('/dashboard');
+        return response()->json([
+            "status" => true,
+            'message' => 'User logged in successfully',
+            'token' => $token,
+        ]);
     }
 }
