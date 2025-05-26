@@ -166,8 +166,6 @@ class LocationController extends Controller
         return response()->json($bookmarks);
     }
 
-    use App\Models\Rating;
-
     public function getTotalRating(Request $request, $locationId)
     {
         $userId = $request->user()->id; // Get the authenticated user's ID
@@ -179,6 +177,31 @@ class LocationController extends Controller
         return response()->json([
             'status' => true,
             'totalRating' => $totalRating,
+        ]);
+    }
+
+    public function getLocationReviews($locationId)
+    {
+        // Fetch all reviews for the given location
+        $reviews = Rating::with('user') // Eager load user details
+            ->where('location_id', $locationId)
+            ->get();
+
+        // Format the reviews as needed
+        $formattedReviews = $reviews->map(function ($review) {
+            return [
+                'id' => $review->id,
+                'rating' => $review->rating,
+                'comment' => $review->comment,
+                'user_name' => $review->user->name, // Include the user's name
+                'created_at' => $review->created_at,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Reviews retrieved successfully',
+            'data' => $formattedReviews,
         ]);
     }
 }

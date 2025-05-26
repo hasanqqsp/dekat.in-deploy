@@ -7,69 +7,84 @@ use Illuminate\Http\Request;
 
 class RatingController extends Controller
 {
-    public function showReviews($locationId)
-    {
-        $reviews = Rating::where('location_id', $locationId)->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Reviews retrieved successfully',
-            'data' => $reviews,
-        ]);
-    }
     /**
-     * Display a listing of the resource.
+     * Display a listing of all ratings.
      */
     public function index()
     {
-        //
+        $ratings = Rating::with('user', 'location')->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Ratings retrieved successfully',
+            'data' => $ratings,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created rating in storage.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'location_id' => 'required|exists:locations,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string',
+        ]);
+
+        $rating = Rating::create($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Rating created successfully',
+            'data' => $rating,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified rating.
      */
     public function show(Rating $rating)
     {
-        //
+        $rating->load('user', 'location');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Rating retrieved successfully',
+            'data' => $rating,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Rating $rating)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified rating in storage.
      */
     public function update(Request $request, Rating $rating)
     {
-        //
+        $validated = $request->validate([
+            'rating' => 'sometimes|required|integer|min:1|max:5',
+            'comment' => 'nullable|string',
+        ]);
+
+        $rating->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Rating updated successfully',
+            'data' => $rating,
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified rating from storage.
      */
     public function destroy(Rating $rating)
     {
-        //
+        $rating->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Rating deleted successfully',
+        ]);
     }
 }

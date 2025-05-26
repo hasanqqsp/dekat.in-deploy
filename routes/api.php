@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\BookmarkController;
 
 Route::post('/register', [ApiController::class, 'register']);
 
@@ -17,10 +18,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::patch('/change-password', [ApiController::class, 'changePassword']);
+    Route::patch('/update-password', [ApiController::class, 'changePassword']);
+    Route::patch('/update-profile', [ApiController::class, 'updateProfile']);
     Route::get('/profile', [ApiController::class, 'profile']);
-    Route::get('/locations', [LocationController::class, 'location']);
-    Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
+    Route::get('/locations', [LocationController::class, 'index']);
+    // Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
     Route::get('/bookmarks', [LocationController::class, 'getBookmarks']);
-    Route::get('/locations/{location}/rating', [LocationController::class, 'getRating']);
+    Route::get('/locations/{location}/reviews', [LocationController::class, 'getLocationReviews']);
+    Route::apiResource('ratings', 'App\Http\Controllers\RatingController');
+    Route::apiResource('bookmarks', BookmarkController::class)->only(['store','destroy']);
+    Route::get('/user/{user}/bookmarks', [BookmarkController::class, 'index']);
+
 });
