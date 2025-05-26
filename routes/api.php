@@ -22,6 +22,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('/update-profile', [ApiController::class, 'updateProfile']);
     Route::get('/profile', [ApiController::class, 'profile']);
     Route::get('/locations', [LocationController::class, 'index']);
+    Route::post('/locations/add', [LocationController::class, 'store']);
+    Route::patch('/locations/{location}/update', [LocationController::class, 'update']);
     // Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
     Route::get('/bookmarks', [LocationController::class, 'getBookmarks']);
     Route::get('/locations/{location}/reviews', [LocationController::class, 'getLocationReviews']);

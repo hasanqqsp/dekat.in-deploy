@@ -15,9 +15,12 @@ class LocationController extends Controller
     {
         // Fetch all locations
         $locations = Location::all();
-
+    
         // Format the data as needed
         $formattedLocations = $locations->map(function ($location) {
+            // Calculate the average rating for the location
+            $averageRating = $location->ratings()->avg('rating');
+    
             return [
                 'name' => $location->name,
                 'category' => $location->category,
@@ -28,13 +31,13 @@ class LocationController extends Controller
                 'closeHour' => $location->close_hour,
                 'startPrice' => $location->start_price,
                 'endPrice' => $location->end_price,
+                'averageRating' => round($averageRating, 1), // Round to 1 decimal place
             ];
         });
-
+    
         // Return the formatted data as JSON
         return response()->json($formattedLocations, 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
