@@ -14,7 +14,7 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|confirmed',
+            'password' => 'required|string',
             'phone' => 'nullable|string|max:15', // Add validation for phone
             'birth_date' => 'nullable|date',     // Add validation for birth date
             'address' => 'nullable|string|max:500', // Add validation for address
@@ -110,7 +110,7 @@ class ApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => 'required|string|min:8',
         ]);
 
         if ($validator->fails()) {
