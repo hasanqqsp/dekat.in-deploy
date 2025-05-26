@@ -2,6 +2,8 @@
 
 return [
 
+    'frontend_url' => env('FRONTEND_REDIRECT_URL', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
