@@ -19,6 +19,7 @@ class Location extends Model
         'kabupaten',
         'provinsi',
         'alamat_lengkap',
+        'image',
     ];
     protected $casts = [
         'coords' => 'array',

@@ -56,7 +56,7 @@ class LocationController extends Controller
             'end_price' => 'required|integer',
         ]);
     
-        // Handle multiple image uploads
+        // Handle multiple image uploads or set default images
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -64,12 +64,19 @@ class LocationController extends Controller
                 $image->move(public_path('images'), $imageName);
                 $imagePaths[] = 'images/' . $imageName;
             }
+        } else {
+            // Set default images if no images are uploaded
+            $imagePaths = [
+                "/assets/content/prolog-kopi.jpg",
+                "/assets/content/prolog-kopi.jpg",
+                "/assets/content/prolog-kopi.jpg",
+            ];
         }
     
         // Create the location
         $location = Location::create(array_merge($validated, [
             'image' => $imagePaths, // Save the array of image paths
-            'contributor_id' => $request->user()->id,
+            'contributor_id' => $request->user()->id ?? null, // Optional contributor ID
         ]));
     
         // Return a success response
@@ -107,7 +114,7 @@ class LocationController extends Controller
             'end_price' => 'sometimes|required|integer',
         ]);
     
-        // Handle multiple image uploads
+        // Handle multiple image uploads or set default images
         $imagePaths = $location->image ?? []; // Keep existing images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -115,6 +122,13 @@ class LocationController extends Controller
                 $image->move(public_path('images'), $imageName);
                 $imagePaths[] = 'images/' . $imageName;
             }
+        } elseif (empty($imagePaths)) {
+            // Set default images if no images exist
+            $imagePaths = [
+                "/assets/content/prolog-kopi.jpg",
+                "/assets/content/prolog-kopi.jpg",
+                "/assets/content/prolog-kopi.jpg",
+            ];
         }
     
         // Update the location
