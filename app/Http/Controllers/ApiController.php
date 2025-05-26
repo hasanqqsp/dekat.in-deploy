@@ -95,6 +95,7 @@ class ApiController extends Controller
         $userData = auth()->user();
 
         return response()->json([
+            'userId' => $userData->id,
             'profileImage' => $userData->profile_image,
             'name' => $userData->name,
             'phone' => $userData->phone,
