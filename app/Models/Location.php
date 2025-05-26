@@ -10,7 +10,6 @@ class Location extends Model
         'name',
         'category',
         'coords',
-        'image',
         'open_hour',
         'close_hour',
         'start_price',
@@ -23,6 +22,7 @@ class Location extends Model
     ];
     protected $casts = [
         'coords' => 'array',
+        'image' => 'array',
     ];
 
     public function contributor()

@@ -25,7 +25,7 @@ class LocationController extends Controller
                 'name' => $location->name,
                 'category' => $location->category,
                 'coords' => $location->coords,
-                'image' => $location->image,
+                'images' => $location->image,
                 'address' => $location->alamat_lengkap,
                 'openHour' => $location->open_hour,
                 'closeHour' => $location->close_hour,
@@ -48,19 +48,30 @@ class LocationController extends Controller
             'name' => 'required|string',
             'category' => 'required|string',
             'coords' => 'required|array',
-            'image' => 'nullable|string',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
             'alamat_lengkap' => 'required|string',
             'open_hour' => 'required',
             'close_hour' => 'required',
             'start_price' => 'required|integer',
             'end_price' => 'required|integer',
         ]);
-
+    
+        // Handle multiple image uploads
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('images'), $imageName);
+                $imagePaths[] = 'images/' . $imageName;
+            }
+        }
+    
         // Create the location
         $location = Location::create(array_merge($validated, [
+            'image' => $imagePaths, // Save the array of image paths
             'contributor_id' => $request->user()->id,
         ]));
-
+    
         // Return a success response
         return response()->json([
             'status' => true,
@@ -88,17 +99,29 @@ class LocationController extends Controller
             'name' => 'sometimes|required|string',
             'category' => 'sometimes|required|string',
             'coords' => 'sometimes|required|array',
-            'image' => 'nullable|string',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
             'alamat_lengkap' => 'sometimes|required|string',
             'open_hour' => 'sometimes|required',
             'close_hour' => 'sometimes|required',
             'start_price' => 'sometimes|required|integer',
             'end_price' => 'sometimes|required|integer',
         ]);
-
+    
+        // Handle multiple image uploads
+        $imagePaths = $location->image ?? []; // Keep existing images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('images'), $imageName);
+                $imagePaths[] = 'images/' . $imageName;
+            }
+        }
+    
         // Update the location
-        $location->update($validated);
-
+        $location->update(array_merge($validated, [
+            'image' => $imagePaths, // Update the array of image paths
+        ]));
+    
         // Return a success response
         return response()->json([
             'status' => true,
