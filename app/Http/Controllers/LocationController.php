@@ -15,13 +15,14 @@ class LocationController extends Controller
     {
         // Fetch all locations
         $locations = Location::all();
-    
+
         // Format the data as needed
         $formattedLocations = $locations->map(function ($location) {
             // Calculate the average rating for the location
             $averageRating = $location->ratings()->avg('rating');
-    
+
             return [
+                'id' => $location->id,
                 'name' => $location->name,
                 'category' => $location->category,
                 'coords' => $location->coords,
@@ -34,7 +35,7 @@ class LocationController extends Controller
                 'averageRating' => round($averageRating, 1), // Round to 1 decimal place
             ];
         });
-    
+
         // Return the formatted data as JSON
         return response()->json($formattedLocations, 200);
     }
@@ -55,7 +56,7 @@ class LocationController extends Controller
             'start_price' => 'required|integer',
             'end_price' => 'required|integer',
         ]);
-    
+
         // Handle multiple image uploads or set default images
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -72,13 +73,13 @@ class LocationController extends Controller
                 "/assets/content/prolog-kopi.jpg",
             ];
         }
-    
+
         // Create the location
         $location = Location::create(array_merge($validated, [
             'image' => $imagePaths, // Save the array of image paths
             'contributor_id' => $request->user()->id ?? null, // Optional contributor ID
         ]));
-    
+
         // Return a success response
         return response()->json([
             'status' => true,
@@ -113,7 +114,7 @@ class LocationController extends Controller
             'start_price' => 'sometimes|required|integer',
             'end_price' => 'sometimes|required|integer',
         ]);
-    
+
         // Handle multiple image uploads or set default images
         $imagePaths = $location->image ?? []; // Keep existing images
         if ($request->hasFile('images')) {
@@ -130,12 +131,12 @@ class LocationController extends Controller
                 "/assets/content/prolog-kopi.jpg",
             ];
         }
-    
+
         // Update the location
         $location->update(array_merge($validated, [
             'image' => $imagePaths, // Update the array of image paths
         ]));
-    
+
         // Return a success response
         return response()->json([
             'status' => true,
@@ -209,11 +210,11 @@ class LocationController extends Controller
     public function getTotalRating(Request $request, $locationId)
     {
         $userId = $request->user()->id; // Get the authenticated user's ID
-    
+
         $totalRating = Rating::where('user_id', $userId)
             ->where('location_id', $locationId)
             ->sum('rating');
-    
+
         return response()->json([
             'status' => true,
             'totalRating' => $totalRating,
