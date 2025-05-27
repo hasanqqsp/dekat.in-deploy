@@ -25,7 +25,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/locations', [LocationController::class, 'index']);
     Route::post('/locations/add', [LocationController::class, 'store']);
     Route::post('/locations/delete', [LocationController::class, 'destroy']);
-    Route::delete('/locations/{ocation}/delete', [LocationController::class, 'destroy']);
+    Route::delete('/locations/{location}/delete', [LocationController::class, 'destroy']);
     Route::post('/locations/add', [LocationController::class, 'store']);
     Route::patch('/locations/{location}/update', [LocationController::class, 'update']);
     // Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
