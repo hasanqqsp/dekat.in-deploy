@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bookmark;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Models\Rating;
+use Illuminate\Container\Attributes\Auth;
 
 class LocationController extends Controller
 {
@@ -15,6 +17,43 @@ class LocationController extends Controller
     {
         // Fetch all locations
         $locations = Location::all();
+
+        // Format the data as needed
+        $formattedLocations = $locations->map(function ($location) {
+            // Calculate the average rating for the location
+            $averageRating = $location->ratings()->avg('rating');
+            $response = [
+                'id' => $location->id,
+                'name' => $location->name,
+                'category' => $location->category,
+                'coords' => is_string($location->coords) ? json_decode($location->coords, true) : $location->coords,
+                'images' => is_string($location->image) ? json_decode($location->image, true) : $location->image,
+                'address' => $location->alamat_lengkap,
+                'openHour' => $location->open_hour,
+                'closeHour' => $location->close_hour,
+                'startPrice' => $location->start_price,
+                'endPrice' => $location->end_price,
+                'averageRating' => round($averageRating, 1), // Round to 1 decimal place
+            ];
+            if (auth("sanctum")->id()) {
+                $response['isBookmarked'] = $location->bookmarks()->where('user_id', auth("sanctum")->id())->exists();
+            }
+            return $response;
+        });
+
+        // Return the formatted data as JSON
+        return response()->json($formattedLocations, 200);
+    }
+
+    /**
+     * Get locations created by the authenticated user.
+     */
+    public function getMyLocations(Request $request)
+    {
+        $user = $request->user();
+
+        // Fetch locations created by the authenticated user
+        $locations = Location::where('contributor_id', $user->id)->get();
 
         // Format the data as needed
         $formattedLocations = $locations->map(function ($location) {
@@ -58,6 +97,14 @@ class LocationController extends Controller
         // ]);
 
         // Handle multiple image uploads or set default images
+        // dd($request->user("sanctum")->id);
+        if ($request->user("sanctum")->id == null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -74,12 +121,19 @@ class LocationController extends Controller
             ];
         }
 
+        // dd(array_merge($request->all(), [
+        //     'image' => $imagePaths, // Save the array of image paths
+        //     'contributor_id' => $request->user("sanctum")->id, // Optional contributor ID
+        // ]));
         // Create the location
-        $location = Location::create(array_merge($request->all(), [
-            'image' => $imagePaths, // Save the array of image paths
-            'contributor_id' => $request->user()->id ?? null, // Optional contributor ID
+        $location = Location::create(array_merge($request->post(), [
+            'image' => json_encode($imagePaths), // Save the array of image paths as JSON
+            'contributor_id' => $request->user("sanctum")->id, // Optional contributor ID
+            'coords' => isset($request['coords']) && is_array($request['coords']) ? json_encode($request['coords']) : $request['coords'],
         ]));
 
+        $location->contributor()->associate($request->user("sanctum"));
+        $location->save();
         // Return a success response
         return response()->json([
             'status' => true,
@@ -103,17 +157,17 @@ class LocationController extends Controller
     public function update(Request $request, Location $location)
     {
         // Validate the request
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string',
-            'category' => 'sometimes|required|string',
-            'coords' => 'sometimes|required|array',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
-            'alamat_lengkap' => 'sometimes|required|string',
-            'open_hour' => 'sometimes|required',
-            'close_hour' => 'sometimes|required',
-            'start_price' => 'sometimes|required|integer',
-            'end_price' => 'sometimes|required|integer',
-        ]);
+        // $validated = $request->validate([
+        //     'name' => 'sometimes|required|string',
+        //     'category' => 'sometimes|required|string',
+        //     'coords' => 'sometimes|required|array',
+        //     'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
+        //     'alamat_lengkap' => 'sometimes|required|string',
+        //     'open_hour' => 'sometimes|required',
+        //     'close_hour' => 'sometimes|required',
+        //     'start_price' => 'sometimes|required|integer',
+        //     'end_price' => 'sometimes|required|integer',
+        // ]);
 
         // Handle multiple image uploads or set default images
         $imagePaths = $location->image ?? []; // Keep existing images
@@ -133,7 +187,7 @@ class LocationController extends Controller
         }
 
         // Update the location
-        $location->update(array_merge($validated, [
+        $location->update(array_merge($request->all(), [
             'image' => $imagePaths, // Update the array of image paths
         ]));
 
@@ -148,10 +202,10 @@ class LocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Location $location)
+    public function destroy(string $id)
     {
         // Delete the location
-        $location->delete();
+        Location::where('id', $id)->delete();
 
         // Return a success response
         return response()->json([

@@ -19,19 +19,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
     Route::patch('/update-password', [ApiController::class, 'changePassword']);
     Route::patch('/update-profile', [ApiController::class, 'updateProfile']);
     Route::get('/profile', [ApiController::class, 'profile']);
-    Route::get('/locations', [LocationController::class, 'index']);
+    // Route::post('/locations/delete', [LocationController::class, 'destroy']);
+    Route::get('/locations/my', [LocationController::class, 'getMyLocations']);
     Route::post('/locations/add', [LocationController::class, 'store']);
-    Route::post('/locations/delete', [LocationController::class, 'destroy']);
-    Route::delete('/locations/{location}/delete', [LocationController::class, 'destroy']);
-    Route::post('/locations/add', [LocationController::class, 'store']);
-    Route::patch('/locations/{location}/update', [LocationController::class, 'update']);
+    Route::delete('/locations/{id}', [LocationController::class, 'destroy']);
+    Route::patch('/locations/{id}', [LocationController::class, 'update']);
+    Route::get('/locations/{id}/reviews', [LocationController::class, 'getLocationReviews']);
     // Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
-    Route::get('/bookmarks', [LocationController::class, 'getBookmarks']);
-    Route::get('/locations/{location}/reviews', [LocationController::class, 'getLocationReviews']);
+    // Route::get('/bookmarks', [LocationController::class, 'getBookmarks']);
     Route::apiResource('ratings', 'App\Http\Controllers\RatingController');
-    Route::apiResource('bookmarks', BookmarkController::class)->only(['store', 'destroy']);
+    Route::post('/bookmarks', [BookmarkController::class, 'store']);
+    Route::delete('/bookmarks', [BookmarkController::class, 'destroy']);
     Route::get('/user/{user}/bookmarks', [BookmarkController::class, 'index']);
 });
+Route::get('/locations', [LocationController::class, 'index']);

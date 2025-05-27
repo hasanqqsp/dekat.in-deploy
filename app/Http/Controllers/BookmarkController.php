@@ -144,9 +144,14 @@ class BookmarkController extends Controller
      *     )
      * )
      */
-    public function destroy(Bookmark $bookmark)
+    public function destroy(Request $request)
     {
         // Ensure the bookmark belongs to the authenticated user
+
+        $bookmark = Bookmark::where('user_id', $request->user()->id)->where('location_id', $request->location_id)
+
+            ->firstOrFail();
+
         if ($bookmark->user_id !== auth()->id()) {
             return response()->json([
                 'status' => false,
@@ -161,7 +166,7 @@ class BookmarkController extends Controller
             'message' => 'Bookmark deleted successfully',
         ]);
     }
-    
+
     /**
      * @OA\Get(
      *     path="/api/user/{userId}/bookmarks",

@@ -26,14 +26,14 @@ class RatingController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'location_id' => 'required|exists:locations,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
+        // $validated = $request->validate([
+        //     'user_id' => 'required|exists:users,id',
+        //     'location_id' => 'required|exists:locations,id',
+        //     'rating' => 'required|integer|min:1|max:5',
+        //     'comment' => 'nullable|string',
+        // ]);
 
-        $rating = Rating::create($validated);
+        $rating = Rating::create($request->all());
 
         return response()->json([
             'status' => true,
