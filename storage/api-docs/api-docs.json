@@ -237,6 +237,160 @@
                     }
                 ]
             }
+        },
+        "/api/bookmarks": {
+            "get": {
+                "tags": [
+                    "Bookmark"
+                ],
+                "summary": "Get all bookmarks for the authenticated user",
+                "operationId": "1fb0d12ef5da5cdfdcc709532c40d31f",
+                "responses": {
+                    "200": {
+                        "description": "Bookmarks retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bookmark"
+                ],
+                "summary": "Create a new bookmark for the authenticated user",
+                "operationId": "ea5e1d78c03dc599b884aefaf8705143",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "location_id"
+                                ],
+                                "properties": {
+                                    "location_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bookmark created successfully"
+                    },
+                    "400": {
+                        "description": "Bookmark already exists"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bookmarks/{bookmark}": {
+            "delete": {
+                "tags": [
+                    "Bookmark"
+                ],
+                "summary": "Delete a bookmark by ID (must belong to authenticated user)",
+                "operationId": "b55cf13e8f2290fe293fa866ed017b91",
+                "parameters": [
+                    {
+                        "name": "bookmark",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmark deleted successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized access"
+                    },
+                    "404": {
+                        "description": "Bookmark not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/{userId}/bookmarks": {
+            "get": {
+                "tags": [
+                    "Bookmark"
+                ],
+                "summary": "Get all bookmarks for a specific user",
+                "operationId": "2296b068df5f4359ff0e5e24b3cd380b",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmarks retrieved successfully for the user"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/location/{locationId}/bookmarks": {
+            "get": {
+                "tags": [
+                    "Bookmark"
+                ],
+                "summary": "Get all bookmarks for a specific location",
+                "operationId": "6b4d363b059dea4c4bcf1b626137cf2d",
+                "parameters": [
+                    {
+                        "name": "locationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmarks retrieved successfully for the location"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -256,6 +410,10 @@
         {
             "name": "User",
             "description": "User"
+        },
+        {
+            "name": "Bookmark",
+            "description": "Bookmark"
         }
     ]
 }

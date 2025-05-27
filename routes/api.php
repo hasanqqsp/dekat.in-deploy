@@ -7,15 +7,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\BookmarkController;
 
-/**
- * @SWG\Post(
- *     path="/register",
- *     summary="Get a list of users",
- *     tags={"register"},
- *     @SWG\Response(response=200, description="Successful operation"),
- *     @SWG\Response(response=400, description="Invalid request")
- * )
- */
+
 Route::post('/register', [ApiController::class, 'register']);
 
 Route::post('/login', [ApiController::class, 'login']);
@@ -30,7 +22,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('/update-profile', [ApiController::class, 'updateProfile']);
     Route::get('/profile', [ApiController::class, 'profile']);
     Route::get('/locations', [LocationController::class, 'index']);
-    Route::post('/locations/delete', [LocationController::class, 'destroy']);
+    Route::post('/locations/{ocation}/delete', [LocationController::class, 'destroy']);
     Route::post('/locations/add', [LocationController::class, 'store']);
     Route::patch('/locations/{location}/update', [LocationController::class, 'update']);
     // Route::post('/locations/{location}/bookmark', [LocationController::class, 'bookmark']);
