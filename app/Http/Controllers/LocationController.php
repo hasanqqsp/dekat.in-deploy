@@ -25,8 +25,8 @@ class LocationController extends Controller
                 'id' => $location->id,
                 'name' => $location->name,
                 'category' => $location->category,
-                'coords' => $location->coords,
-                'images' => $location->image,
+                'coords' => is_string($location->coords) ? json_decode($location->coords, true) : $location->coords,
+                'images' => is_string($location->image) ? json_decode($location->image, true) : $location->image,
                 'address' => $location->alamat_lengkap,
                 'openHour' => $location->open_hour,
                 'closeHour' => $location->close_hour,
@@ -45,17 +45,17 @@ class LocationController extends Controller
     public function store(Request $request)
     {
         // Validate the request
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'category' => 'required|string',
-            'coords' => 'required|array',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
-            'alamat_lengkap' => 'required|string',
-            'open_hour' => 'required',
-            'close_hour' => 'required',
-            'start_price' => 'required|integer',
-            'end_price' => 'required|integer',
-        ]);
+        // $validated = $request->validate([
+        //     'name' => 'required|string',
+        //     'category' => 'required|string',
+        //     'coords' => 'required|array',
+        //     'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
+        //     'alamat_lengkap' => 'required|string',
+        //     'open_hour' => 'required',
+        //     'close_hour' => 'required',
+        //     'start_price' => 'required|integer',
+        //     'end_price' => 'required|integer',
+        // ]);
 
         // Handle multiple image uploads or set default images
         $imagePaths = [];
@@ -75,7 +75,7 @@ class LocationController extends Controller
         }
 
         // Create the location
-        $location = Location::create(array_merge($validated, [
+        $location = Location::create(array_merge($request->all(), [
             'image' => $imagePaths, // Save the array of image paths
             'contributor_id' => $request->user()->id ?? null, // Optional contributor ID
         ]));
