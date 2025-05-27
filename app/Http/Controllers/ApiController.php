@@ -7,8 +7,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
+
+
 class ApiController extends Controller
 {
+/**
+ * @OA\Post(
+ *     path="/api/register",
+ *     summary="Register a new user",
+ *     tags={"Auth"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"name","email","password"},
+ *             @OA\Property(property="name", type="string"),
+ *             @OA\Property(property="email", type="string"),
+ *             @OA\Property(property="password", type="string"),
+ *             @OA\Property(property="phone", type="string"),
+ *             @OA\Property(property="birth_date", type="string", format="date"),
+ *             @OA\Property(property="address", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="User registered successfully"
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Validation failed"
+ *     )
+ * )
+ */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -43,6 +72,33 @@ class ApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     summary="Login user",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string"),
+     *             @OA\Property(property="password", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User logged in successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -80,6 +136,18 @@ class ApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/logout",
+     *     summary="Logout user",
+     *     tags={"Auth"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User logged out successfully"
+     *     )
+     * )
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -90,6 +158,18 @@ class ApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/profile",
+     *     summary="Get authenticated user's profile",
+     *     tags={"User"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User profile data"
+     *     )
+     * )
+     */
     public function profile(Request $request)
     {
         $userData = auth()->user();
@@ -106,7 +186,34 @@ class ApiController extends Controller
     }
 
 
-    ## change password
+    /**
+     * @OA\Patch(
+     *     path="/api/update-password",
+     *     summary="Change password for authenticated user",
+     *     tags={"User"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"current_password","new_password"},
+     *             @OA\Property(property="current_password", type="string"),
+     *             @OA\Property(property="new_password", type="string", minLength=8)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password changed successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Current password is incorrect"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     )
+     * )
+     */
     public function changePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -140,6 +247,35 @@ class ApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Patch(
+     *     path="/api/update-profile",
+     *     summary="Update authenticated user's profile",
+     *     tags={"User"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="phone", type="string"),
+     *                 @OA\Property(property="birth_date", type="string", format="date"),
+     *                 @OA\Property(property="email", type="string"),
+     *                 @OA\Property(property="profile_image", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Profile updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     )
+     * )
+     */
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
