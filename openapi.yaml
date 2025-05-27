@@ -1,0 +1,6 @@
+openapi: 3.0.0
+info:
+  title: 'Dekat.in API'
+  version: 0.0.1
+paths:
+  /api/v1: {  }
