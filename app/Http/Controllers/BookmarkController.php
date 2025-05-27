@@ -10,6 +10,18 @@ class BookmarkController extends Controller
     /**
      * Display a listing of all bookmarks for the authenticated user.
      */
+    /**
+     * @OA\Get(
+     *     path="/api/bookmarks",
+     *     summary="Get all bookmarks for the authenticated user",
+     *     tags={"Bookmark"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmarks retrieved successfully"
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         $bookmarks = Bookmark::with('location')
@@ -25,6 +37,33 @@ class BookmarkController extends Controller
 
     /**
      * Store a newly created bookmark in storage.
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/bookmarks",
+     *     summary="Create a new bookmark for the authenticated user",
+     *     tags={"Bookmark"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"location_id"},
+     *             @OA\Property(property="location_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmark created successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bookmark already exists"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -79,6 +118,32 @@ class BookmarkController extends Controller
     /**
      * Remove the specified bookmark from storage.
      */
+    /**
+     * @OA\Delete(
+     *     path="/api/bookmarks/{bookmark}",
+     *     summary="Delete a bookmark by ID (must belong to authenticated user)",
+     *     tags={"Bookmark"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="bookmark",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmark deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Bookmark not found"
+     *     )
+     * )
+     */
     public function destroy(Bookmark $bookmark)
     {
         // Ensure the bookmark belongs to the authenticated user
@@ -97,6 +162,24 @@ class BookmarkController extends Controller
         ]);
     }
     
+    /**
+     * @OA\Get(
+     *     path="/api/user/{userId}/bookmarks",
+     *     summary="Get all bookmarks for a specific user",
+     *     tags={"Bookmark"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="userId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmarks retrieved successfully for the user"
+     *     )
+     * )
+     */
     public function getUserBookmarks($userId)
     {
         $bookmarks = Bookmark::with('location')
@@ -110,6 +193,24 @@ class BookmarkController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/location/{locationId}/bookmarks",
+     *     summary="Get all bookmarks for a specific location",
+     *     tags={"Bookmark"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="locationId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmarks retrieved successfully for the location"
+     *     )
+     * )
+     */
     public function getLocationBookmarks($locationId)
     {
         $bookmarks = Bookmark::with('user')
